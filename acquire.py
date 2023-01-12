@@ -63,17 +63,3 @@ def get_telco_data(get_connection):
         df.to_csv('telco.csv')
         return df
 
-def get_student_data():
-    filename = "student_grades.csv"
-
-    if os.path.isfile(filename):
-        return pd.read_csv(filename)
-    else:
-        # read the SQL query into a dataframe
-        df = pd.read_sql('SELECT * FROM student_grades', get_connection('school_sample'))
-
-        # Write that dataframe to disk for later. Called "caching" the data for later.
-        df.to_csv(filename)
-
-        # Return the dataframe to the calling code
-        return df

@@ -63,3 +63,66 @@ def get_telco_data(get_connection):
         df.to_csv('telco.csv')
         return df
 
+def get_zillow_data():
+    
+    '''
+    This function is used to get zillow data from sql database.
+    '''
+    
+    if os.path.isfile('zillow.csv'):
+        
+        return pd.read_csv('zillow.csv')
+    
+    else:
+        
+        url = get_connection('zillow')
+        query = '''SELECT bedroomcnt, bathroomcnt, calculatedfinishedsquarefeet, taxvaluedollarcnt, yearbuilt, taxamount, fips 
+                FROM properties_2017
+                WHERE propertylandusetypeid = 261;'''
+        df = pd.read_sql(query, url)
+        df.to_csv('zillow.csv')
+        return df
+
+
+def wrangle_zillow(df):
+    
+    '''
+    This function is used to get zillow data from sql database, renaming columns, 
+    dropping nulls and duplicates.
+    '''
+    
+    df = get_zillow_data()
+    
+    # renaming columns
+    df = df.rename(columns={'bedroomcnt':'bed',
+                        'bathroomcnt':'bath',
+                        'calculatedfinishedsquarefeet':'sqft',
+                        'taxvaluedollarcnt':'tax_value',
+                        'yearbuilt':'year'})
+    
+    # drop Unnamed: 0 column
+    df = df.drop(columns=['Unnamed: 0'])
+
+    #drop nulls
+    df = df.dropna()
+    
+    # drop duplicates
+    df.drop_duplicates(inplace=True)
+    
+    return df
+
+
+def get_auto_mpg():
+    
+    '''Acquire, clean, and return the auto-mpg dataset'''
+    
+    df = pd.read_fwf('auto-mpg.data', header=None)
+    
+    df.columns = ['mpg', 'cylinders', 'displ', 'horsepower', 'weight', 'acc',
+              'model_year', 'origin', 'name']
+    
+    df = df[df['horsepower'] != '?']
+    
+    df['horsepower'] = df['horsepower'].astype('float')
+    
+    return df
